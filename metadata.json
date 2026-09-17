@@ -1,0 +1,6 @@
+{
+  "name": "Boro Wallet",
+  "description": "A multi-asset digital wallet for crypto, stocks, and ETFs with live market tracking, portfolio analytics, and instant transfers.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
