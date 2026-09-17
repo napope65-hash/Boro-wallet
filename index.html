@@ -1,22 +1,2242 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Boro Wallet</title>
-    <meta name="description" content="A multi-asset digital wallet for crypto, stocks, and ETFs with live market tracking, portfolio analytics, and instant transfers." />
-    <meta property="og:title" content="Boro Wallet" />
-    <meta property="og:description" content="A multi-asset digital wallet for crypto, stocks, and ETFs with live market tracking, portfolio analytics, and instant transfers." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-  </head>
-  <body class="bg-[#FDFCFB] text-[#1A1C1F] font-sans antialiased selection:bg-[#FF005E]/20">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Boro Wallet</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
+    :root {
+      --primary: #B90042;
+      --primary-variant: #E70054;
+      --accent: #FF005E;
+      --accent-soft: rgba(255, 0, 94, 0.1);
+      --bg: #FDFCFB;
+      --surface: #FFFFFF;
+      --surface-variant: #F4F5F6;
+      --text: #1A1C1F;
+      --text-secondary: #404754;
+      --text-muted: #767F8D;
+      --gain: #00875A;
+      --loss: #DE350B;
+      --border: #EDEDF2;
+    }
+
+    body {
+      background-color: #0F1115;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* Android Device Shell */
+    .device-frame {
+      width: 100%;
+      max-width: 440px;
+      height: 100vh;
+      max-height: 920px;
+      background: var(--bg);
+      border-radius: 40px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 10px #1A1C20;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (max-width: 480px) {
+      .device-frame {
+        max-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
+    /* Android Status Bar */
+    .status-bar {
+      height: 38px;
+      padding: 10px 24px 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      z-index: 10;
+      background: var(--bg);
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Header */
+    .header-bar {
+      padding: 8px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg);
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-emblem {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--primary-variant);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: var(--surface-variant);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: #E8EAEF;
+    }
+
+    .icon-btn.rewards-btn {
+      background: var(--accent-soft);
+      color: var(--primary-variant);
+    }
+
+    .badge-dot {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      background: var(--primary-variant);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Scrollable Container */
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-bottom: 95px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .app-content::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+
+    /* Net Worth Summary */
+    .summary-card {
+      padding: 6px 20px 10px;
+    }
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .balance-toggle {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 135, 90, 0.1);
+      color: var(--gain);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gain);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    .total-balance {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -1.2px;
+      color: var(--text);
+      margin: 4px 0 6px;
+    }
+
+    .gain-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .gain-badge {
+      background: var(--accent-soft);
+      color: var(--primary-variant);
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Chart Container */
+    .chart-container {
+      padding: 6px 20px 14px;
+    }
+
+    .chart-tooltip {
+      height: 24px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 150px;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .timeframe-selector {
+      display: flex;
+      background: var(--surface-variant);
+      border-radius: 16px;
+      padding: 4px;
+      margin-top: 10px;
+    }
+
+    .tf-btn {
+      flex: 1;
+      height: 32px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tf-btn.active {
+      background: var(--text);
+      color: var(--surface);
+      font-weight: 700;
+    }
+
+    /* Action Buttons */
+    .action-row {
+      padding: 6px 20px 10px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      height: 50px;
+      border-radius: 25px;
+      border: none;
+      background: var(--primary-variant);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(231, 0, 84, 0.3);
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      height: 50px;
+      border-radius: 25px;
+      border: none;
+      background: var(--surface-variant);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background: #E7E9ED;
+    }
+
+    /* Referral Banner */
+    .referral-card {
+      margin: 8px 20px;
+      padding: 14px 16px;
+      background: var(--surface-variant);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .referral-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .referral-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--primary-variant);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .referral-text h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .referral-text p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .btn-invite {
+      padding: 7px 16px;
+      border-radius: 16px;
+      border: none;
+      background: var(--surface);
+      color: var(--primary-variant);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+
+    /* Category Filter */
+    .category-scroll {
+      display: flex;
+      gap: 8px;
+      padding: 6px 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .category-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .cat-pill {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: none;
+      background: var(--surface-variant);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .cat-pill.active {
+      background: var(--text);
+      color: var(--surface);
+    }
+
+    /* Search & Holdings Header */
+    .holdings-controls {
+      padding: 10px 20px 6px;
+    }
+
+    .search-input-box {
+      width: 100%;
+      height: 44px;
+      background: var(--surface-variant);
+      border-radius: 14px;
+      border: none;
+      padding: 0 14px 0 38px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      position: relative;
+    }
+
+    .search-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 13px;
+      width: 18px;
+      height: 18px;
+      opacity: 0.5;
+    }
+
+    .holdings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .holdings-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .count-badge {
+      background: var(--surface-variant);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 8px;
+      color: var(--text-secondary);
+    }
+
+    .sort-btn {
+      background: none;
+      border: none;
+      color: var(--primary-variant);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Asset List Items */
+    .asset-list {
+      padding: 4px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .asset-card {
+      padding: 12px 14px;
+      background: var(--surface-variant);
+      border-radius: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .asset-card:hover {
+      background: #E8EAEF;
+    }
+
+    .asset-card:active {
+      transform: scale(0.99);
+    }
+
+    .asset-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .asset-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .asset-info h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .asset-info .symbol-pill {
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--surface);
+      color: var(--text-secondary);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    .asset-info p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 1px;
+    }
+
+    .asset-right {
+      text-align: right;
+    }
+
+    .asset-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .asset-change {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary-variant);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    /* Market Intelligence Section */
+    .news-section {
+      padding: 16px 20px;
+    }
+
+    .news-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .news-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .see-all-btn {
+      background: none;
+      border: none;
+      color: var(--primary-variant);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .news-card {
+      padding: 14px;
+      background: var(--surface-variant);
+      border-radius: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .news-card:hover {
+      background: #E8EAEF;
+    }
+
+    .news-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .news-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--primary-variant);
+    }
+
+    .news-time {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .news-heading {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 20px;
+      color: var(--text);
+    }
+
+    /* Floating Bottom Nav */
+    .bottom-nav-container {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .bottom-nav {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      padding: 6px 10px;
+      border-radius: 32px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      gap: 2px;
+      transition: all 0.15s;
+    }
+
+    .nav-tab.active {
+      background: var(--accent-soft);
+      color: var(--primary-variant);
+      font-weight: 700;
+    }
+
+    .nav-tab svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Modals Overlay */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      z-index: 100;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-height: 90%;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 20px 20px 30px;
+      overflow-y: auto;
+      animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .tab-toggle-box {
+      display: flex;
+      background: var(--surface-variant);
+      border-radius: 14px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+
+    .toggle-tab-btn {
+      flex: 1;
+      height: 38px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .toggle-tab-btn.active {
+      background: var(--primary-variant);
+      color: white;
+    }
+
+    .input-field {
+      width: 100%;
+      height: 50px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 14px;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-variant);
+    }
+
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .chip-btn {
+      flex: 1;
+      height: 34px;
+      border-radius: 8px;
+      border: none;
+      background: var(--surface-variant);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .info-card {
+      background: var(--surface-variant);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+    }
+
+    .info-row strong {
+      color: var(--text);
+    }
+
+    /* Toast Notification */
+    .toast-pill {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #1A1C1F;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+    }
+
+    .toast-pill.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="device-frame">
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <span>5G</span>
+        <svg width="18" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L12 22l7.03-4.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9z"/>
+        </svg>
+        <span style="font-size: 11px;">100%</span>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header-bar">
+      <div class="brand-logo">
+        <div class="brand-emblem">B</div>
+        <div class="brand-name">BORO</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn rewards-btn" id="headerRewardsBtn" title="Rewards">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 12 20 22 4 22 4 12"/>
+            <rect x="2" y="7" width="20" height="5"/>
+            <line x1="12" y1="22" x2="12" y2="7"/>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="headerNotifBtn" title="Notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <div class="badge-dot" id="unreadBadge">4</div>
+        </button>
+        <button class="icon-btn" id="headerProfileBtn" title="Profile">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Body -->
+    <div class="app-content" id="appContent">
+      <!-- Wallet Screen (Default) -->
+      <div id="viewWallet">
+        <!-- Net Worth Card -->
+        <div class="summary-card">
+          <div class="summary-header">
+            <div class="balance-toggle" id="toggleBalanceBtn">
+              <span>Net Worth</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="live-pill" id="liveTickerBtn">
+              <div class="live-dot"></div>
+              <span>LIVE</span>
+            </div>
+          </div>
+          <div class="total-balance" id="netWorthDisplay">$114,820.00</div>
+          <div class="gain-row">
+            <div class="gain-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+              <span>+3.42%</span>
+            </div>
+            <span style="color: var(--text-secondary);">+$3,842.10 past 24 hours</span>
+          </div>
+        </div>
+
+        <!-- Interactive Chart -->
+        <div class="chart-container">
+          <div class="chart-tooltip" id="chartTooltip">Tap or drag along curve to inspect</div>
+          <svg class="chart-svg" id="chartSvg" viewBox="0 0 400 150">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#E70054" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#E70054" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <path id="chartArea" fill="url(#chartGradient)" d=""/>
+            <path id="chartLine" fill="none" stroke="#E70054" stroke-width="3.5" stroke-linecap="round" d=""/>
+            <circle id="chartScrubberDot" cx="0" cy="0" r="5" fill="#E70054" stroke="#FFF" stroke-width="2" style="display:none;"/>
+          </svg>
+          <div class="timeframe-selector">
+            <button class="tf-btn active" data-tf="1D">1D</button>
+            <button class="tf-btn" data-tf="1W">1W</button>
+            <button class="tf-btn" data-tf="1M">1M</button>
+            <button class="tf-btn" data-tf="1Y">1Y</button>
+            <button class="tf-btn" data-tf="ALL">ALL</button>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="action-row">
+          <button class="btn-primary" id="openBuySellBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="17 1 21 5 17 9"/>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+              <polyline points="7 23 3 19 7 15"/>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+            </svg>
+            Buy & Sell
+          </button>
+          <button class="btn-secondary" id="openTransferBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="7" y1="17" x2="17" y2="7"/>
+              <polyline points="7 7 17 7 17 17"/>
+            </svg>
+            Transfer
+          </button>
+        </div>
+
+        <!-- Referral Banner Card -->
+        <div class="referral-card">
+          <div class="referral-content">
+            <div class="referral-icon">🎁</div>
+            <div class="referral-text">
+              <h4>Earn $25 in BTC</h4>
+              <p>Invite friends to diversify with Boro</p>
+            </div>
+          </div>
+          <button class="btn-invite" id="bannerInviteBtn">Invite</button>
+        </div>
+
+        <!-- Category Scroll -->
+        <div class="category-scroll">
+          <button class="cat-pill active" data-cat="all">All Assets</button>
+          <button class="cat-pill" data-cat="crypto">Crypto</button>
+          <button class="cat-pill" data-cat="stocks">Stocks</button>
+          <button class="cat-pill" data-cat="etfs">ETFs & Nasdaq</button>
+        </div>
+
+        <!-- Holdings Controls -->
+        <div class="holdings-controls">
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="search-input-box" id="searchInput" placeholder="Search stocks, crypto, ETFs..."/>
+          </div>
+          <div class="holdings-header">
+            <div class="holdings-title">
+              Holdings <span class="count-badge" id="holdingsCount">6</span>
+            </div>
+            <button class="sort-btn" id="sortBtn">Sort: Value ↓</button>
+          </div>
+        </div>
+
+        <!-- Holdings Cards -->
+        <div class="asset-list" id="assetListContainer"></div>
+
+        <!-- Market Intelligence -->
+        <div class="news-section">
+          <div class="news-header">
+            <div class="news-title">
+              <span>Market Intelligence</span>
+              <span style="color: var(--primary-variant);">⚡</span>
+            </div>
+            <button class="see-all-btn" id="seeAllNewsBtn">See all</button>
+          </div>
+          <div id="newsContainer"></div>
+        </div>
+      </div>
+
+      <!-- Explore Screen -->
+      <div id="viewExplore" style="display:none; padding: 16px 20px;">
+        <h2 style="font-size: 26px; font-weight: 900; margin-bottom: 4px;">Market Pulse ⚡</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Global macroeconomic telemetry & sector sentiment</p>
+
+        <!-- Fear & Greed Card -->
+        <div style="background: var(--surface-variant); border-radius: 20px; padding: 16px; margin-bottom: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--text-secondary);">Market Sentiment</span>
+            <span style="background: rgba(0,135,90,0.1); color: var(--gain); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 8px;">74 • GREED</span>
+          </div>
+          <div style="height: 8px; border-radius: 4px; background: rgba(0,0,0,0.08); overflow:hidden; margin-bottom: 10px;">
+            <div style="width: 74%; height: 100%; background: var(--gain);"></div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 18px;">
+            Historical liquidity inflows indicate heightened institutional accumulation across digital commodities and semiconductor giants.
+          </p>
+        </div>
+
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 10px;">Global Benchmarks</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;" id="benchmarksGrid"></div>
+
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 10px;">Top Performer Today</h3>
+        <div id="topGainerBanner" style="background: var(--surface-variant); border-radius: 20px; padding: 16px; margin-bottom: 16px;"></div>
+
+        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 10px;">Trending Watchlist</h3>
+        <div id="exploreWatchlist" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+
+      <!-- Swap Screen -->
+      <div id="viewSwap" style="display:none; padding: 16px 20px;">
+        <h2 style="font-size: 26px; font-weight: 900; margin-bottom: 4px;">Instant Swap 🔄</h2>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">Zero slippage execution across cross-market asset pools</p>
+
+        <div style="background: var(--surface-variant); border-radius: 24px; padding: 16px;">
+          <!-- Pay Box -->
+          <div style="background: var(--surface); border-radius: 18px; padding: 14px; margin-bottom: 10px;">
+            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;">
+              <span>You Pay</span>
+              <span id="swapFromBalance">Bal: 0.8420 BTC</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <input type="number" id="swapPayInput" value="0.1" style="border:none; outline:none; font-size: 24px; font-weight: 800; width: 60%; background:transparent;"/>
+              <select id="swapFromSelect" style="padding: 6px 10px; border-radius: 12px; border:none; background: var(--surface-variant); font-weight: 700;"></select>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="swapPayUsd">≈ $9,642.05 USD</div>
+          </div>
+
+          <!-- Invert Button -->
+          <div style="display:flex; justify-content:center; margin: -4px 0;">
+            <button id="swapInvertBtn" style="width: 36px; height: 36px; border-radius: 50%; border:none; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--primary-variant);">
+              ⇅
+            </button>
+          </div>
+
+          <!-- Receive Box -->
+          <div style="background: var(--surface); border-radius: 18px; padding: 14px; margin-top: 10px; margin-bottom: 14px;">
+            <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px;">
+              <span>You Receive (Guaranteed)</span>
+              <span id="swapToBalance">Bal: 3.5000 ETH</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div id="swapReceiveAmount" style="font-size: 24px; font-weight: 800; width: 60%;">2.6199</div>
+              <select id="swapToSelect" style="padding: 6px 10px; border-radius: 12px; border:none; background: var(--surface-variant); font-weight: 700;"></select>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" id="swapReceiveUsd">≈ $9,642.05 USD</div>
+          </div>
+
+          <!-- Summary info -->
+          <div style="background: var(--surface); border-radius: 14px; padding: 12px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px;">
+            <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+              <span>Exchange Rate</span>
+              <strong id="swapRateText">1 BTC ≈ 26.20 ETH</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+              <span>Slippage Tolerance</span>
+              <strong style="color: var(--primary-variant);">0.0% (Guaranteed)</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; color: var(--text-secondary);">
+              <span>Network Routing Fee</span>
+              <strong style="color: var(--primary-variant);">$0.00 Free</strong>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="executeSwapBtn" style="width: 100%;">
+            Execute Instant Swap
+          </button>
+        </div>
+      </div>
+
+      <!-- Profile Screen -->
+      <div id="viewProfile" style="display:none; padding: 16px 20px;">
+        <!-- Profile Header -->
+        <div style="background: var(--surface-variant); border-radius: 24px; padding: 18px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display:flex; align-items:center; gap: 14px;">
+            <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--primary-variant); color: white; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800;">
+              AS
+            </div>
+            <div>
+              <div style="font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+                Alexandre Sterling
+                <span style="color: var(--primary-variant);">✓</span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-secondary);">alexandre@sterling.capital</div>
+            </div>
+          </div>
+          <span style="background: var(--accent-soft); color: var(--primary-variant); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px;">
+            Private Member
+          </span>
+        </div>
+
+        <!-- Cash Balance Card -->
+        <div style="background: var(--surface-variant); border-radius: 24px; padding: 18px; margin-bottom: 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+            <span style="font-size: 14px; font-weight: 700;">Boro Cash Balance</span>
+            <span style="background: rgba(0,135,90,0.1); color: var(--gain); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 6px;">FDIC Insured</span>
+          </div>
+          <div style="font-size: 30px; font-weight: 900; margin-bottom: 14px;" id="profileCashBalance">$14,250.00</div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="profileDepositBtn" style="height: 42px; font-size: 14px;">↓ Deposit</button>
+            <button class="btn-secondary" id="profileWithdrawBtn" style="height: 42px; font-size: 14px;">↑ Withdraw</button>
+          </div>
+        </div>
+
+        <!-- Referral Row -->
+        <div id="profileReferralRow" style="background: var(--surface-variant); border-radius: 18px; padding: 14px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
+          <div style="display:flex; align-items:center; gap: 12px;">
+            <span style="font-size: 20px;">🎁</span>
+            <div>
+              <div style="font-size: 14px; font-weight: 700;">Referrals & Rewards</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Earn $25 in BTC for each friend</div>
+            </div>
+          </div>
+          <span style="color: var(--text-secondary);">➔</span>
+        </div>
+
+        <!-- Preferences -->
+        <div style="background: var(--surface-variant); border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700;">Biometric Passkey</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">Authenticate with fingerprint or face</div>
+            </div>
+            <input type="checkbox" checked id="biometricsToggle" style="accent-color: var(--primary-variant); width: 20px; height: 20px; cursor: pointer;"/>
+          </div>
+          <div style="height: 1px; background: rgba(0,0,0,0.06);"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size: 14px; font-weight: 700;">Base Currency</div>
+            <strong style="color: var(--primary-variant); font-size: 14px;">USD ($)</strong>
+          </div>
+          <div style="height: 1px; background: rgba(0,0,0,0.06);"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size: 14px; font-weight: 700;">Concierge Support</div>
+            <span style="background: rgba(0,135,90,0.1); color: var(--gain); font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 8px;">24/7 Active</span>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px; font-size: 11px; color: var(--text-muted);">
+          Boro Multi-Asset Wealth OS • Version 2.4.0<br/>Securities member FINRA/SIPC. Crypto via Boro Trust NY LLC.
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Navigation Bar -->
+    <div class="bottom-nav-container">
+      <div class="bottom-nav">
+        <button class="nav-tab active" data-tab="wallet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+          <span>Wallet</span>
+        </button>
+        <button class="nav-tab" data-tab="explore">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          <span>Explore</span>
+        </button>
+        <button class="nav-tab" data-tab="swap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          <span>Swap</span>
+        </button>
+        <button class="nav-tab" data-tab="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Buy / Sell Modal -->
+    <div class="modal-overlay" id="buySellModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div class="modal-title" id="buySellTitle">Trade Asset</div>
+          <button class="icon-btn" onclick="closeModal('buySellModal')">✕</button>
+        </div>
+        <div class="tab-toggle-box">
+          <button class="toggle-tab-btn active" id="modalBuyTab">Buy</button>
+          <button class="toggle-tab-btn" id="modalSellTab">Sell</button>
+        </div>
+        <select class="input-field" id="tradeAssetSelect"></select>
+        <input type="number" class="input-field" id="tradeAmountInput" placeholder="Amount in USD ($)" value="1000"/>
+        <div class="quick-chips">
+          <button class="chip-btn" onclick="setTradePct(0.25)">25%</button>
+          <button class="chip-btn" onclick="setTradePct(0.5)">50%</button>
+          <button class="chip-btn" onclick="setTradePct(0.75)">75%</button>
+          <button class="chip-btn" onclick="setTradePct(1.0)">MAX</button>
+        </div>
+        <div class="info-card">
+          <div class="info-row">
+            <span>Available Balance</span>
+            <strong id="tradeAvailableBal">$14,250.00</strong>
+          </div>
+          <div class="info-row">
+            <span>Estimated Units</span>
+            <strong id="tradeEstUnits">0.0103 BTC</strong>
+          </div>
+          <div class="info-row">
+            <span>Commission</span>
+            <strong style="color: var(--primary-variant);">$0.00 (Zero Fee)</strong>
+          </div>
+        </div>
+        <button class="btn-primary" id="confirmTradeBtn" style="width: 100%;">Confirm Buy</button>
+      </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div class="modal-overlay" id="transferModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div class="modal-title">Transfer Funds</div>
+          <button class="icon-btn" onclick="closeModal('transferModal')">✕</button>
+        </div>
+        <div class="tab-toggle-box">
+          <button class="toggle-tab-btn active" id="modalSendTab">Send</button>
+          <button class="toggle-tab-btn" id="modalReceiveTab">Receive</button>
+        </div>
+        <select class="input-field" id="transferAssetSelect"></select>
+        <div id="transferSendSection">
+          <input type="text" class="input-field" id="transferRecipient" placeholder="Recipient ($tag, ENS, or address)"/>
+          <input type="number" class="input-field" id="transferAmount" placeholder="Units to send"/>
+          <div class="info-card">
+            <div class="info-row">
+              <span>Network Routing</span>
+              <strong style="color: var(--primary-variant);">Instant Vault Rail ($0.00)</strong>
+            </div>
+          </div>
+          <button class="btn-primary" id="confirmSendBtn" style="width: 100%;">Send Transfer</button>
+        </div>
+        <div id="transferReceiveSection" style="display:none; text-align:center;">
+          <div style="width: 150px; height: 150px; background: white; border-radius: 16px; margin: 10px auto; display: flex; align-items: center; justify-content: center; border: 2px dashed #CBD0DC; font-size: 32px;">
+            📱
+          </div>
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">Your Boro Vault Address</p>
+          <div style="background: var(--surface-variant); padding: 12px; border-radius: 12px; font-family: monospace; font-size: 12px; font-weight: 700; margin-bottom: 14px; cursor: pointer;" id="copyAddressBtn">
+            0x89F4...BORO9A2B (Tap to copy)
+          </div>
+          <button class="btn-secondary" onclick="simulateReceive()" style="width: 100%;">Simulate Incoming Deposit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Asset Detail Modal -->
+    <div class="modal-overlay" id="assetDetailModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div style="display:flex; align-items:center; gap: 10px;">
+            <div id="detailAvatar" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;"></div>
+            <div>
+              <div style="font-size: 17px; font-weight: 800;" id="detailName">Bitcoin</div>
+              <div style="font-size: 12px; color: var(--text-secondary);" id="detailSymbol">BTC</div>
+            </div>
+          </div>
+          <button class="icon-btn" onclick="closeModal('assetDetailModal')">✕</button>
+        </div>
+        <div style="font-size: 32px; font-weight: 900; margin: 6px 0;" id="detailPrice">$96,420.50</div>
+        <div class="gain-badge" id="detailChange" style="display: inline-flex; margin-bottom: 16px;">+4.25% 24h</div>
+
+        <div style="background: var(--surface-variant); border-radius: 16px; padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Your Position</div>
+          <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
+            <span style="font-size: 12px; color: var(--text-secondary);">Holdings</span>
+            <strong id="detailHoldings">0.8420 BTC</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span style="font-size: 12px; color: var(--text-secondary);">Total Value</span>
+            <strong id="detailTotalValue">$81,186.06</strong>
+          </div>
+        </div>
+
+        <div style="font-size: 14px; font-weight: 700; margin-bottom: 8px;">Key Statistics</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+          <div style="background: var(--surface-variant); padding: 10px; border-radius: 10px;">
+            <div style="font-size: 11px; color: var(--text-muted);">Market Cap</div>
+            <strong style="font-size: 13px;" id="detailMarketCap">$1.89T</strong>
+          </div>
+          <div style="background: var(--surface-variant); padding: 10px; border-radius: 10px;">
+            <div style="font-size: 11px; color: var(--text-muted);">24h Volume</div>
+            <strong style="font-size: 13px;" id="detailVolume">$48.2B</strong>
+          </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 20px; margin-bottom: 16px;" id="detailDesc"></p>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn-primary" id="detailTradeBtn">Trade</button>
+          <button class="btn-secondary" id="detailTransferBtn">Transfer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article Detail Modal -->
+    <div class="modal-overlay" id="articleModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <span class="news-tag" id="articleCategory">Macro</span>
+          <button class="icon-btn" onclick="closeModal('articleModal')">✕</button>
+        </div>
+        <h3 style="font-size: 18px; font-weight: 800; line-height: 24px; margin-bottom: 6px;" id="articleTitle"></h3>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;" id="articleMeta"></div>
+        <p style="font-size: 14px; line-height: 22px; color: var(--text); margin-bottom: 16px;" id="articleSummary"></p>
+        <div style="background: var(--surface-variant); border-radius: 16px; padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px;">Key Takeaways</div>
+          <ul id="articleTakeaways" style="padding-left: 18px; font-size: 12px; color: var(--text-secondary); line-height: 20px;"></ul>
+        </div>
+        <button class="btn-secondary" onclick="closeModal('articleModal')" style="width: 100%;">Done Reading</button>
+      </div>
+    </div>
+
+    <!-- Rewards Modal -->
+    <div class="modal-overlay" id="rewardsModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div class="modal-title">Invite Friends 🎁</div>
+          <button class="icon-btn" onclick="closeModal('rewardsModal')">✕</button>
+        </div>
+        <h3 style="font-size: 22px; font-weight: 900; margin-bottom: 6px;">Earn $25 in BTC</h3>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 20px; margin-bottom: 16px;">
+          Share your private referral link. When your friend creates an account and deposits $50, you both get $25 worth of Bitcoin instantly.
+        </p>
+        <div style="background: var(--surface-variant); padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; cursor: pointer;" id="copyReferralLinkBtn">
+          <strong style="font-size: 14px;">boro.app/r/BORO-8821</strong>
+          <span style="color: var(--primary-variant); font-size: 13px; font-weight: 700;">Copy</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <div style="background: var(--surface-variant); padding: 12px; border-radius: 12px;">
+            <div style="font-size: 11px; color: var(--text-muted);">Friends Joined</div>
+            <strong style="font-size: 18px;">4</strong>
+          </div>
+          <div style="background: var(--surface-variant); padding: 12px; border-radius: 12px;">
+            <div style="font-size: 11px; color: var(--text-muted);">Rewards Earned</div>
+            <strong style="font-size: 18px; color: var(--primary-variant);">$100.00 BTC</strong>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="closeModal('rewardsModal')" style="width: 100%;">Done</button>
+      </div>
+    </div>
+
+    <!-- Notifications Drawer -->
+    <div class="modal-overlay" id="notificationsModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div class="modal-title">Activity Alerts</div>
+          <button class="icon-btn" onclick="closeModal('notificationsModal')">✕</button>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 12px;">
+          <button class="sort-btn" id="markReadBtn">Mark all read</button>
+          <button class="sort-btn" style="color: var(--text-muted);" id="clearNotifsBtn">Clear all</button>
+        </div>
+        <div id="notificationsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+    </div>
+
+    <!-- Cash Deposit/Withdraw Modal -->
+    <div class="modal-overlay" id="cashModal">
+      <div class="modal-sheet">
+        <div class="modal-header">
+          <div class="modal-title" id="cashModalTitle">Deposit Boro Cash</div>
+          <button class="icon-btn" onclick="closeModal('cashModal')">✕</button>
+        </div>
+        <div class="tab-toggle-box">
+          <button class="toggle-tab-btn active" id="cashTabDeposit">Deposit</button>
+          <button class="toggle-tab-btn" id="cashTabWithdraw">Withdraw</button>
+        </div>
+        <div style="background: var(--surface-variant); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px;">
+          <span style="color: var(--text-secondary); font-size: 11px;">Linked Bank Account</span>
+          <div style="font-weight: 700;">Chase Premier Checking (•••• 4092)</div>
+          <span style="color: var(--primary-variant); font-size: 11px; font-weight: 600;">Instant Settlement via FedNow</span>
+        </div>
+        <input type="number" class="input-field" id="cashAmountInput" placeholder="Amount (USD)" value="500"/>
+        <div class="quick-chips">
+          <button class="chip-btn" onclick="setCashAmount(100)">$100</button>
+          <button class="chip-btn" onclick="setCashAmount(500)">$500</button>
+          <button class="chip-btn" onclick="setCashAmount(1000)">$1,000</button>
+          <button class="chip-btn" onclick="setCashAmount(5000)">$5,000</button>
+        </div>
+        <button class="btn-primary" id="confirmCashBtn" style="width: 100%;">Confirm Deposit</button>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-pill" id="toastPill">Action Completed</div>
+  </div>
+
+  <script>
+    // State management
+    const state = {
+      cashBalance: 14250.00,
+      isBalanceHidden: false,
+      isLive: true,
+      selectedCategory: 'all',
+      searchQuery: '',
+      sortOption: 'value-desc',
+      timeframe: '1D',
+      activeTab: 'wallet',
+      selectedAssetId: 'btc',
+      assets: [
+        {
+          id: 'btc',
+          name: 'Bitcoin',
+          symbol: 'BTC',
+          category: 'crypto',
+          price: 96420.50,
+          change: 4.25,
+          shares: 0.842,
+          unit: 'BTC',
+          color: '#F7931A',
+          bg: 'rgba(247, 147, 26, 0.15)',
+          icon: '₿',
+          marketCap: '$1.89T',
+          volume: '$48.2B',
+          desc: "The world's premier decentralized digital store of value and benchmark cryptocurrency."
+        },
+        {
+          id: 'aapl',
+          name: 'Apple Inc.',
+          symbol: 'AAPL',
+          category: 'stocks',
+          price: 234.80,
+          change: 1.65,
+          shares: 45.0,
+          unit: 'Shares',
+          color: '#1A1C1F',
+          bg: '#EAEBEF',
+          icon: '',
+          marketCap: '$3.56T',
+          volume: '$12.4B',
+          desc: "Global technology leader in personal computing, smartphones, and digital ecosystems."
+        },
+        {
+          id: 'qqq',
+          name: 'Invesco QQQ',
+          symbol: 'QQQ',
+          category: 'etfs',
+          price: 512.40,
+          change: 0.95,
+          shares: 20.0,
+          unit: 'Shares',
+          color: '#0052FF',
+          bg: 'rgba(0, 82, 255, 0.15)',
+          icon: 'Q',
+          marketCap: '$288B',
+          volume: '$8.1B',
+          desc: "Tracks the Nasdaq-100 index covering the 100 largest non-financial innovative corporations."
+        },
+        {
+          id: 'eth',
+          name: 'Ethereum',
+          symbol: 'ETH',
+          category: 'crypto',
+          price: 3680.20,
+          change: 3.10,
+          shares: 3.5,
+          unit: 'ETH',
+          color: '#627EEA',
+          bg: 'rgba(98, 126, 234, 0.15)',
+          icon: 'Ξ',
+          marketCap: '$442B',
+          volume: '$22.8B',
+          desc: "Leading smart-contract platform powering global decentralized finance and tokenization."
+        },
+        {
+          id: 'nvda',
+          name: 'NVIDIA Corp.',
+          symbol: 'NVDA',
+          category: 'stocks',
+          price: 142.60,
+          change: 2.85,
+          shares: 30.0,
+          unit: 'Shares',
+          color: '#76B900',
+          bg: 'rgba(118, 185, 0, 0.15)',
+          icon: 'N',
+          marketCap: '$3.48T',
+          volume: '$31.5B',
+          desc: "Pioneer in accelerated computing and undisputed semiconductor standard for generative AI."
+        },
+        {
+          id: 'voo',
+          name: 'Vanguard S&P 500',
+          symbol: 'VOO',
+          category: 'etfs',
+          price: 548.90,
+          change: 0.72,
+          shares: 12.0,
+          unit: 'Shares',
+          color: '#C00000',
+          bg: 'rgba(192, 0, 0, 0.15)',
+          icon: 'V',
+          marketCap: '$510B',
+          volume: '$4.9B',
+          desc: "Ultra-low-cost institutional index fund benchmarked to the 500 leading publicly traded US corporations."
+        }
+      ],
+      notifications: [
+        { id: '1', title: 'Price Alert: Bitcoin surpassed $96,000', desc: 'BTC is up +4.25% in 24h. Portfolio gained +$3,450.', time: '10m ago', unread: true },
+        { id: '2', title: 'Referral Reward Credited', desc: 'Marcus K. completed identity verification. $25.00 in BTC added to your vault.', time: '2h ago', unread: true },
+        { id: '3', title: 'Dividend Payment Received', desc: 'Apple Inc. (AAPL) distributed quarterly dividend of $11.25 into cash account.', time: '1d ago', unread: false },
+        { id: '4', title: 'Biometric Passkey Verified', desc: 'Hardware security element verified zero-lag authorization.', time: '3d ago', unread: false }
+      ],
+      news: [
+        {
+          id: 'n1',
+          category: 'Macro',
+          source: 'Bloomberg Terminal',
+          time: '18m ago',
+          readTime: '3 min read',
+          title: 'Federal Reserve signals policy easing as inflation prints below target',
+          summary: 'Macro liquidity expectations provide tailwinds for risk-on assets across equities and digital commodities.',
+          takeaways: [
+            'Rate cut expectations elevated for upcoming FOMC cycle',
+            'Treasury yields softened across 2-year and 10-year curve',
+            'Equities and cryptocurrencies responded with broad green moves'
+          ]
+        },
+        {
+          id: 'n2',
+          category: 'Crypto',
+          source: 'CoinDesk Alpha',
+          time: '42m ago',
+          readTime: '4 min read',
+          title: 'Global institutional inflows into spot Bitcoin and Ethereum ETFs surpass $4.2B',
+          summary: 'Sovereign wealth funds and top asset allocators accelerate multi-asset allocation strategies.',
+          takeaways: [
+            'Record weekly net inflows into regulated custodial funds',
+            'Adoption curve steepens among multi-trillion pension allocators',
+            'Long-term illiquid supply hits historic highs'
+          ]
+        },
+        {
+          id: 'n3',
+          category: 'Equities',
+          source: 'Financial Times',
+          time: '1h ago',
+          readTime: '5 min read',
+          title: 'Big Tech cloud revenues surge 31% driven by next-gen generative AI inference',
+          summary: 'Accelerated computing demand and hyper-scale infrastructure show sustained multi-year momentum.',
+          takeaways: [
+            'Silicon hardware budgets revised upwards across enterprises',
+            'Enterprise software monetization timelines compressed',
+            'Operating margins expand across Nasdaq-100 components'
+          ]
+        }
+      ],
+      benchmarks: [
+        { name: 'S&P 500', ticker: 'SPX', value: '5,983.25', change: 0.65 },
+        { name: 'Nasdaq 100', ticker: 'NDX', value: '21,180.40', change: 1.12 },
+        { name: 'Bitcoin', ticker: 'BTC', value: '$96,420', change: 4.25 },
+        { name: 'Gold', ticker: 'XAU', value: '$2,748.10', change: 0.38 }
+      ],
+      chartData: {
+        '1D': [112400, 113100, 112800, 113900, 114300, 114820],
+        '1W': [108500, 109800, 111200, 112400, 114820],
+        '1M': [102000, 105400, 109100, 114820],
+        '1Y': [78000, 89500, 98200, 114820],
+        'ALL': [42000, 55000, 72000, 94000, 114820]
+      }
+    };
+
+    // Calculate total net worth
+    function getNetWorth() {
+      const assetTotal = state.assets.reduce((sum, a) => sum + (a.price * a.shares), 0);
+      return assetTotal + state.cashBalance;
+    }
+
+    // Format currency
+    function formatMoney(num) {
+      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Toast helper
+    function showToast(msg) {
+      const toast = document.getElementById('toastPill');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    // Render Net Worth
+    function renderSummary() {
+      const el = document.getElementById('netWorthDisplay');
+      if (state.isBalanceHidden) {
+        el.innerText = '$••••••••';
+      } else {
+        el.innerText = formatMoney(getNetWorth());
+      }
+      document.getElementById('profileCashBalance').innerText = formatMoney(state.cashBalance);
+    }
+
+    // Render Holdings
+    function renderHoldings() {
+      const container = document.getElementById('assetListContainer');
+      let list = state.assets.filter(a => {
+        const catMatch = state.selectedCategory === 'all' || a.category === state.selectedCategory;
+        const q = state.searchQuery.toLowerCase();
+        const searchMatch = !q || a.name.toLowerCase().includes(q) || a.symbol.toLowerCase().includes(q);
+        return catMatch && searchMatch;
+      });
+
+      if (state.sortOption === 'value-desc') {
+        list.sort((a, b) => (b.price * b.shares) - (a.price * a.shares));
+      } else if (state.sortOption === 'value-asc') {
+        list.sort((a, b) => (a.price * a.shares) - (b.price * b.shares));
+      } else if (state.sortOption === 'gain-desc') {
+        list.sort((a, b) => b.change - a.change);
+      }
+
+      document.getElementById('holdingsCount').innerText = list.length;
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); font-size: 13px;">No assets match your filter</div>`;
+        return;
+      }
+
+      container.innerHTML = list.map(a => `
+        <div class="asset-card" onclick="openAssetDetail('${a.id}')">
+          <div class="asset-left">
+            <div class="asset-avatar" style="background: ${a.bg}; color: ${a.color};">
+              ${a.icon || a.symbol[0]}
+            </div>
+            <div class="asset-info">
+              <h4>${a.name} <span class="symbol-pill">${a.symbol}</span></h4>
+              <p>${a.shares.toFixed(4)} ${a.unit}</p>
+            </div>
+          </div>
+          <div class="asset-right">
+            <div class="asset-price">${state.isBalanceHidden ? '$••••••' : formatMoney(a.price)}</div>
+            <div class="asset-change">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                <polyline points="17 6 23 6 23 12"/>
+              </svg>
+              +${a.change.toFixed(2)}%
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render News
+    function renderNews(expanded = false) {
+      const container = document.getElementById('newsContainer');
+      const items = expanded ? state.news : state.news.slice(0, 2);
+      container.innerHTML = items.map(n => `
+        <div class="news-card" onclick="openArticleModal('${n.id}')">
+          <div class="news-meta">
+            <span class="news-tag">${n.category}</span>
+            <span class="news-time">${n.source} • ${n.time}</span>
+          </div>
+          <div class="news-heading">${n.title}</div>
+        </div>
+      `).join('');
+    }
+
+    // Render Chart
+    function renderChart() {
+      const points = state.chartData[state.timeframe] || state.chartData['1D'];
+      const width = 400;
+      const height = 150;
+      const min = Math.min(...points) * 0.99;
+      const max = Math.max(...points) * 1.01;
+      const range = max - min || 1;
+
+      const coords = points.map((val, i) => {
+        const x = (i / (points.length - 1)) * width;
+        const y = height - ((val - min) / range) * height;
+        return { x, y: Math.max(8, Math.min(height - 8, y)), val };
+      });
+
+      // Bezier curve
+      let dLine = `M ${coords[0].x} ${coords[0].y}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const p0 = coords[i];
+        const p1 = coords[i + 1];
+        const cx = (p0.x + p1.x) / 2;
+        dLine += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+      }
+
+      const dArea = `${dLine} L ${width} ${height} L 0 ${height} Z`;
+
+      document.getElementById('chartLine').setAttribute('d', dLine);
+      document.getElementById('chartArea').setAttribute('d', dArea);
+    }
+
+    // Render Explore Tab
+    function renderExplore() {
+      // Benchmarks
+      const bg = document.getElementById('benchmarksGrid');
+      bg.innerHTML = state.benchmarks.map(b => `
+        <div style="background: var(--surface-variant); padding: 12px; border-radius: 14px;">
+          <div style="display:flex; justify-content:space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 2px;">
+            <span>${b.name}</span>
+            <span style="color: var(--primary-variant); font-weight:700;">+${b.change}%</span>
+          </div>
+          <div style="font-size: 16px; font-weight: 900;">${b.value}</div>
+        </div>
+      `).join('');
+
+      // Top Gainer
+      const top = [...state.assets].sort((a, b) => b.change - a.change)[0];
+      document.getElementById('topGainerBanner').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+          <span style="color: var(--primary-variant); font-weight: 700; font-size: 12px;">★ TOP PERFORMER TODAY</span>
+          <span style="background: var(--accent-soft); color: var(--primary-variant); padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: 800;">+${top.change.toFixed(2)}%</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap: 10px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; background:${top.bg}; color:${top.color}; display:flex; align-items:center; justify-content:center; font-weight:700;">${top.icon || top.symbol[0]}</div>
+            <div>
+              <div style="font-weight: 700; font-size: 15px;">${top.name}</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">${formatMoney(top.price)}</div>
+            </div>
+          </div>
+          <button class="btn-primary" style="height: 36px; padding: 0 16px; font-size: 12px;" onclick="openBuySell('${top.id}')">Trade</button>
+        </div>
+      `;
+
+      // Watchlist
+      const wl = document.getElementById('exploreWatchlist');
+      wl.innerHTML = state.assets.map(a => `
+        <div style="background: var(--surface-variant); border-radius: 14px; padding: 10px 14px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="openAssetDetail('${a.id}')">
+          <div style="display:flex; align-items:center; gap: 10px;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background:${a.bg}; color:${a.color}; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px;">${a.icon || a.symbol[0]}</div>
+            <div>
+              <div style="font-size: 14px; font-weight: 700;">${a.name}</div>
+              <div style="font-size: 11px; color: var(--text-secondary);">${a.symbol}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size: 14px; font-weight: 700;">${formatMoney(a.price)}</div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--primary-variant);">+${a.change.toFixed(2)}%</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render Swap Selectors
+    function initSwapView() {
+      const fromSel = document.getElementById('swapFromSelect');
+      const toSel = document.getElementById('swapToSelect');
+      fromSel.innerHTML = state.assets.map(a => `<option value="${a.id}">${a.symbol}</option>`).join('');
+      toSel.innerHTML = state.assets.map(a => `<option value="${a.id}">${a.symbol}</option>`).join('');
+      toSel.selectedIndex = 3; // ETH
+      updateSwapCalculation();
+    }
+
+    function updateSwapCalculation() {
+      const fromId = document.getElementById('swapFromSelect').value;
+      const toId = document.getElementById('swapToSelect').value;
+      const fromAsset = state.assets.find(a => a.id === fromId);
+      const toAsset = state.assets.find(a => a.id === toId);
+
+      const payAmount = parseFloat(document.getElementById('swapPayInput').value) || 0;
+      const totalUsd = payAmount * fromAsset.price;
+      const receiveUnits = toAsset.price > 0 ? totalUsd / toAsset.price : 0;
+      const rate = toAsset.price > 0 ? fromAsset.price / toAsset.price : 0;
+
+      document.getElementById('swapFromBalance').innerText = `Bal: ${fromAsset.shares.toFixed(4)} ${fromAsset.unit}`;
+      document.getElementById('swapToBalance').innerText = `Bal: ${toAsset.shares.toFixed(4)} ${toAsset.unit}`;
+      document.getElementById('swapPayUsd').innerText = `≈ ${formatMoney(totalUsd)} USD`;
+      document.getElementById('swapReceiveAmount').innerText = receiveUnits.toFixed(4);
+      document.getElementById('swapReceiveUsd').innerText = `≈ ${formatMoney(totalUsd)} USD`;
+      document.getElementById('swapRateText').innerText = `1 ${fromAsset.symbol} ≈ ${rate.toFixed(4)} ${toAsset.symbol}`;
+    }
+
+    // Live price ticker
+    function startLiveTicker() {
+      setInterval(() => {
+        if (!state.isLive) return;
+        state.assets.forEach(a => {
+          const deltaPct = (Math.random() * 0.005) - 0.0022; // +-0.25%
+          a.price = Math.max(0.01, a.price * (1 + deltaPct));
+          a.change = Math.max(0.01, a.change + (deltaPct * 5));
+        });
+        renderSummary();
+        renderHoldings();
+        if (state.activeTab === 'explore') renderExplore();
+        if (state.activeTab === 'swap') updateSwapCalculation();
+      }, 4000);
+    }
+
+    // Modals control
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Asset Detail Modal
+    function openAssetDetail(assetId) {
+      const a = state.assets.find(x => x.id === assetId);
+      if (!a) return;
+      state.selectedAssetId = assetId;
+
+      document.getElementById('detailAvatar').style.background = a.bg;
+      document.getElementById('detailAvatar').style.color = a.color;
+      document.getElementById('detailAvatar').innerText = a.icon || a.symbol[0];
+      document.getElementById('detailName').innerText = a.name;
+      document.getElementById('detailSymbol').innerText = a.symbol;
+      document.getElementById('detailPrice').innerText = formatMoney(a.price);
+      document.getElementById('detailChange').innerText = `+${a.change.toFixed(2)}% 24h`;
+      document.getElementById('detailHoldings').innerText = `${a.shares.toFixed(4)} ${a.unit}`;
+      document.getElementById('detailTotalValue').innerText = formatMoney(a.shares * a.price);
+      document.getElementById('detailMarketCap').innerText = a.marketCap;
+      document.getElementById('detailVolume').innerText = a.volume;
+      document.getElementById('detailDesc').innerText = a.desc;
+
+      document.getElementById('detailTradeBtn').onclick = () => {
+        closeModal('assetDetailModal');
+        openBuySell(assetId);
+      };
+      document.getElementById('detailTransferBtn').onclick = () => {
+        closeModal('assetDetailModal');
+        openTransfer(assetId);
+      };
+
+      openModal('assetDetailModal');
+    }
+
+    // Buy/Sell Modal
+    let isBuyMode = true;
+    function openBuySell(assetId = 'btc', tab = 'buy') {
+      isBuyMode = (tab === 'buy');
+      const sel = document.getElementById('tradeAssetSelect');
+      sel.innerHTML = state.assets.map(a => `<option value="${a.id}">${a.name} (${a.symbol})</option>`).join('');
+      sel.value = assetId;
+
+      updateTradeModalUI();
+      openModal('buySellModal');
+    }
+
+    function updateTradeModalUI() {
+      document.getElementById('modalBuyTab').className = `toggle-tab-btn ${isBuyMode ? 'active' : ''}`;
+      document.getElementById('modalSellTab').className = `toggle-tab-btn ${!isBuyMode ? 'active' : ''}`;
+      document.getElementById('buySellTitle').innerText = isBuyMode ? 'Buy Asset' : 'Sell Asset';
+      document.getElementById('confirmTradeBtn').innerText = isBuyMode ? 'Confirm Buy' : 'Confirm Sell';
+
+      const asset = state.assets.find(a => a.id === document.getElementById('tradeAssetSelect').value);
+      const usdAmount = parseFloat(document.getElementById('tradeAmountInput').value) || 0;
+      const estUnits = asset.price > 0 ? usdAmount / asset.price : 0;
+
+      document.getElementById('tradeAvailableBal').innerText = isBuyMode ? formatMoney(state.cashBalance) : `${asset.shares.toFixed(4)} ${asset.unit} (${formatMoney(asset.shares * asset.price)})`;
+      document.getElementById('tradeEstUnits').innerText = `${estUnits.toFixed(4)} ${asset.unit}`;
+    }
+
+    function setTradePct(pct) {
+      const asset = state.assets.find(a => a.id === document.getElementById('tradeAssetSelect').value);
+      const maxVal = isBuyMode ? state.cashBalance : (asset.shares * asset.price);
+      document.getElementById('tradeAmountInput').value = (maxVal * pct).toFixed(2);
+      updateTradeModalUI();
+    }
+
+    // Transfer Modal
+    let isSendMode = true;
+    function openTransfer(assetId = 'btc', tab = 'send') {
+      isSendMode = (tab === 'send');
+      const sel = document.getElementById('transferAssetSelect');
+      sel.innerHTML = state.assets.map(a => `<option value="${a.id}">${a.name} (${a.symbol})</option>`).join('');
+      sel.value = assetId;
+
+      updateTransferModalUI();
+      openModal('transferModal');
+    }
+
+    function updateTransferModalUI() {
+      document.getElementById('modalSendTab').className = `toggle-tab-btn ${isSendMode ? 'active' : ''}`;
+      document.getElementById('modalReceiveTab').className = `toggle-tab-btn ${!isSendMode ? 'active' : ''}`;
+      document.getElementById('transferSendSection').style.display = isSendMode ? 'block' : 'none';
+      document.getElementById('transferReceiveSection').style.display = !isSendMode ? 'block' : 'none';
+    }
+
+    function simulateReceive() {
+      const asset = state.assets.find(a => a.id === document.getElementById('transferAssetSelect').value);
+      asset.shares += 0.5;
+      renderSummary();
+      renderHoldings();
+      closeModal('transferModal');
+      showToast(`Received +0.50 ${asset.symbol} into vault!`);
+    }
+
+    // Article Modal
+    function openArticleModal(id) {
+      const article = state.news.find(n => n.id === id);
+      if (!article) return;
+      document.getElementById('articleCategory').innerText = article.category;
+      document.getElementById('articleTitle').innerText = article.title;
+      document.getElementById('articleMeta').innerText = `${article.source} • ${article.time} • ${article.readTime}`;
+      document.getElementById('articleSummary').innerText = article.summary;
+      document.getElementById('articleTakeaways').innerHTML = article.takeaways.map(t => `<li>${t}</li>`).join('');
+      openModal('articleModal');
+    }
+
+    // Notifications Modal
+    function openNotificationsModal() {
+      const container = document.getElementById('notificationsContainer');
+      container.innerHTML = state.notifications.map(n => `
+        <div style="background: ${n.unread ? 'var(--accent-soft)' : 'var(--surface-variant)'}; border-radius: 14px; padding: 12px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom: 3px;">
+            <strong style="font-size: 13px;">${n.title}</strong>
+            <span style="font-size: 10px; color: var(--text-muted);">${n.time}</span>
+          </div>
+          <p style="font-size: 12px; color: var(--text-secondary); line-height: 16px;">${n.desc}</p>
+        </div>
+      `).join('');
+      openModal('notificationsModal');
+    }
+
+    // Cash Modal
+    let isCashDeposit = true;
+    function openCashModal(mode = 'deposit') {
+      isCashDeposit = (mode === 'deposit');
+      document.getElementById('cashTabDeposit').className = `toggle-tab-btn ${isCashDeposit ? 'active' : ''}`;
+      document.getElementById('cashTabWithdraw').className = `toggle-tab-btn ${!isCashDeposit ? 'active' : ''}`;
+      document.getElementById('cashModalTitle').innerText = isCashDeposit ? 'Deposit Boro Cash' : 'Withdraw Boro Cash';
+      document.getElementById('confirmCashBtn').innerText = isCashDeposit ? 'Confirm Deposit' : 'Confirm Withdrawal';
+      openModal('cashModal');
+    }
+
+    function setCashAmount(amt) {
+      document.getElementById('cashAmountInput').value = amt;
+    }
+
+    // Event Listeners setup
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSummary();
+      renderHoldings();
+      renderNews();
+      renderChart();
+      initSwapView();
+      startLiveTicker();
+
+      // Navigation tabs
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tab = btn.dataset.tab;
+          state.activeTab = tab;
+
+          document.getElementById('viewWallet').style.display = tab === 'wallet' ? 'block' : 'none';
+          document.getElementById('viewExplore').style.display = tab === 'explore' ? 'block' : 'none';
+          document.getElementById('viewSwap').style.display = tab === 'swap' ? 'block' : 'none';
+          document.getElementById('viewProfile').style.display = tab === 'profile' ? 'block' : 'none';
+
+          if (tab === 'explore') renderExplore();
+          if (tab === 'swap') updateSwapCalculation();
+        });
+      });
+
+      // Category filter pills
+      document.querySelectorAll('.cat-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+          document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+          state.selectedCategory = pill.dataset.cat;
+          renderHoldings();
+        });
+      });
+
+      // Timeframe buttons
+      document.querySelectorAll('.tf-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.timeframe = btn.dataset.tf;
+          renderChart();
+        });
+      });
+
+      // Balance visibility toggle
+      document.getElementById('toggleBalanceBtn').addEventListener('click', () => {
+        state.isBalanceHidden = !state.isBalanceHidden;
+        renderSummary();
+        renderHoldings();
+      });
+
+      // Live ticker toggle
+      document.getElementById('liveTickerBtn').addEventListener('click', () => {
+        state.isLive = !state.isLive;
+        const pill = document.getElementById('liveTickerBtn');
+        if (state.isLive) {
+          pill.innerHTML = `<div class="live-dot"></div><span>LIVE</span>`;
+          pill.style.color = 'var(--gain)';
+          pill.style.background = 'rgba(0,135,90,0.1)';
+        } else {
+          pill.innerHTML = `<div style="width:6px; height:6px; border-radius:50%; background: gray;"></div><span>PAUSED</span>`;
+          pill.style.color = 'gray';
+          pill.style.background = 'var(--surface-variant)';
+        }
+      });
+
+      // Search input
+      document.getElementById('searchInput').addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        renderHoldings();
+      });
+
+      // Sort toggle
+      document.getElementById('sortBtn').addEventListener('click', () => {
+        if (state.sortOption === 'value-desc') {
+          state.sortOption = 'gain-desc';
+          document.getElementById('sortBtn').innerText = 'Sort: Gainers';
+        } else if (state.sortOption === 'gain-desc') {
+          state.sortOption = 'value-asc';
+          document.getElementById('sortBtn').innerText = 'Sort: Value ↑';
+        } else {
+          state.sortOption = 'value-desc';
+          document.getElementById('sortBtn').innerText = 'Sort: Value ↓';
+        }
+        renderHoldings();
+      });
+
+      // News expand
+      let newsExpanded = false;
+      document.getElementById('seeAllNewsBtn').addEventListener('click', () => {
+        newsExpanded = !newsExpanded;
+        document.getElementById('seeAllNewsBtn').innerText = newsExpanded ? 'Show less' : 'See all';
+        renderNews(newsExpanded);
+      });
+
+      // Header Buttons
+      document.getElementById('headerRewardsBtn').onclick = () => openModal('rewardsModal');
+      document.getElementById('headerNotifBtn').onclick = openNotificationsModal;
+      document.getElementById('headerProfileBtn').onclick = () => {
+        document.querySelector('[data-tab="profile"]').click();
+      };
+
+      // CTAs
+      document.getElementById('openBuySellBtn').onclick = () => openBuySell();
+      document.getElementById('openTransferBtn').onclick = () => openTransfer();
+      document.getElementById('bannerInviteBtn').onclick = () => openModal('rewardsModal');
+      document.getElementById('profileReferralRow').onclick = () => openModal('rewardsModal');
+
+      // Buy/Sell Toggles & Submit
+      document.getElementById('modalBuyTab').onclick = () => { isBuyMode = true; updateTradeModalUI(); };
+      document.getElementById('modalSellTab').onclick = () => { isBuyMode = false; updateTradeModalUI(); };
+      document.getElementById('tradeAssetSelect').onchange = updateTradeModalUI;
+      document.getElementById('tradeAmountInput').oninput = updateTradeModalUI;
+      document.getElementById('confirmTradeBtn').onclick = () => {
+        const asset = state.assets.find(a => a.id === document.getElementById('tradeAssetSelect').value);
+        const amount = parseFloat(document.getElementById('tradeAmountInput').value) || 0;
+        if (amount <= 0) return;
+
+        if (isBuyMode) {
+          if (state.cashBalance < amount) {
+            showToast('Insufficient USD cash balance');
+            return;
+          }
+          state.cashBalance -= amount;
+          asset.shares += (amount / asset.price);
+          showToast(`Successfully purchased ${asset.symbol}!`);
+        } else {
+          const tokensToSell = amount / asset.price;
+          if (asset.shares < tokensToSell) {
+            showToast(`Insufficient ${asset.symbol} balance`);
+            return;
+          }
+          asset.shares -= tokensToSell;
+          state.cashBalance += amount;
+          showToast(`Successfully sold ${asset.symbol}!`);
+        }
+
+        renderSummary();
+        renderHoldings();
+        closeModal('buySellModal');
+      };
+
+      // Transfer Toggles & Submit
+      document.getElementById('modalSendTab').onclick = () => { isSendMode = true; updateTransferModalUI(); };
+      document.getElementById('modalReceiveTab').onclick = () => { isSendMode = false; updateTransferModalUI(); };
+      document.getElementById('confirmSendBtn').onclick = () => {
+        const asset = state.assets.find(a => a.id === document.getElementById('transferAssetSelect').value);
+        const units = parseFloat(document.getElementById('transferAmount').value) || 0;
+        if (units <= 0 || asset.shares < units) {
+          showToast('Invalid units or insufficient balance');
+          return;
+        }
+        asset.shares -= units;
+        renderSummary();
+        renderHoldings();
+        closeModal('transferModal');
+        showToast(`Sent ${units} ${asset.symbol} successfully!`);
+      };
+      document.getElementById('copyAddressBtn').onclick = () => {
+        showToast('Address copied to clipboard!');
+      };
+
+      // Rewards Copy Link
+      document.getElementById('copyReferralLinkBtn').onclick = () => {
+        showToast('Referral link copied to clipboard!');
+      };
+
+      // Notifications Controls
+      document.getElementById('markReadBtn').onclick = () => {
+        state.notifications.forEach(n => n.unread = false);
+        document.getElementById('unreadBadge').style.display = 'none';
+        openNotificationsModal();
+        showToast('All notifications marked as read');
+      };
+      document.getElementById('clearNotifsBtn').onclick = () => {
+        state.notifications = [];
+        document.getElementById('unreadBadge').style.display = 'none';
+        document.getElementById('notificationsContainer').innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">No activity to show</div>`;
+      };
+
+      // Cash Deposit / Withdraw
+      document.getElementById('profileDepositBtn').onclick = () => openCashModal('deposit');
+      document.getElementById('profileWithdrawBtn').onclick = () => openCashModal('withdraw');
+      document.getElementById('cashTabDeposit').onclick = () => {
+        isCashDeposit = true;
+        document.getElementById('cashTabDeposit').className = 'toggle-tab-btn active';
+        document.getElementById('cashTabWithdraw').className = 'toggle-tab-btn';
+        document.getElementById('cashModalTitle').innerText = 'Deposit Boro Cash';
+        document.getElementById('confirmCashBtn').innerText = 'Confirm Deposit';
+      };
+      document.getElementById('cashTabWithdraw').onclick = () => {
+        isCashDeposit = false;
+        document.getElementById('cashTabDeposit').className = 'toggle-tab-btn';
+        document.getElementById('cashTabWithdraw').className = 'toggle-tab-btn active';
+        document.getElementById('cashModalTitle').innerText = 'Withdraw Boro Cash';
+        document.getElementById('confirmCashBtn').innerText = 'Confirm Withdrawal';
+      };
+      document.getElementById('confirmCashBtn').onclick = () => {
+        const amt = parseFloat(document.getElementById('cashAmountInput').value) || 0;
+        if (amt <= 0) return;
+        if (isCashDeposit) {
+          state.cashBalance += amt;
+          showToast(`Deposited ${formatMoney(amt)} into Boro Cash!`);
+        } else {
+          if (state.cashBalance < amt) {
+            showToast('Insufficient Boro Cash balance');
+            return;
+          }
+          state.cashBalance -= amt;
+          showToast(`Withdrew ${formatMoney(amt)} to Chase Checking!`);
+        }
+        renderSummary();
+        closeModal('cashModal');
+      };
+
+      // Swap view events
+      document.getElementById('swapPayInput').oninput = updateSwapCalculation;
+      document.getElementById('swapFromSelect').onchange = updateSwapCalculation;
+      document.getElementById('swapToSelect').onchange = updateSwapCalculation;
+      document.getElementById('swapInvertBtn').onclick = () => {
+        const fromSel = document.getElementById('swapFromSelect');
+        const toSel = document.getElementById('swapToSelect');
+        const temp = fromSel.value;
+        fromSel.value = toSel.value;
+        toSel.value = temp;
+        updateSwapCalculation();
+      };
+      document.getElementById('executeSwapBtn').onclick = () => {
+        const fromId = document.getElementById('swapFromSelect').value;
+        const toId = document.getElementById('swapToSelect').value;
+        if (fromId === toId) {
+          showToast('Select two different assets to swap');
+          return;
+        }
+        const fromAsset = state.assets.find(a => a.id === fromId);
+        const toAsset = state.assets.find(a => a.id === toId);
+        const payAmount = parseFloat(document.getElementById('swapPayInput').value) || 0;
+
+        if (payAmount <= 0 || fromAsset.shares < payAmount) {
+          showToast(`Insufficient ${fromAsset.symbol} balance`);
+          return;
+        }
+
+        const totalUsd = payAmount * fromAsset.price;
+        const receiveUnits = totalUsd / toAsset.price;
+
+        fromAsset.shares -= payAmount;
+        toAsset.shares += receiveUnits;
+
+        renderSummary();
+        renderHoldings();
+        updateSwapCalculation();
+        showToast(`Swapped ${payAmount} ${fromAsset.symbol} for ${receiveUnits.toFixed(4)} ${toAsset.symbol}!`);
+      };
+    });
+  </script>
+</body>
+</html>

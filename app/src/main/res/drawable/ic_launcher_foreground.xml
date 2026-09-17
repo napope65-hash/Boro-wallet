@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:translateX="0"
+        android:translateY="0">
+        <!-- Circular brand backdrop inside safe zone (radius 24 around center 54,54) -->
+        <path
+            android:fillColor="#E70054"
+            android:pathData="M54,30 A24,24 0 1,1 53.99,30 Z"/>
+
+        <!-- Sleek White B Glyph with wallet curve -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M44,40 L53,40 C56.5,40 59,42 59,45 C59,47.2 57.5,48.8 55.2,49.5 C58.2,50.2 60,52 60,55 C60,58.5 57,61 53,61 L44,61 Z M48,44 L48,48.5 L52.5,48.5 C54.5,48.5 55.5,47.5 55.5,46.2 C55.5,45 54.5,44 52.5,44 Z M48,52.5 L48,57 L53,57 C55.2,57 56.5,56 56.5,54.8 C56.5,53.5 55.2,52.5 53,52.5 Z"/>
+
+        <!-- Accent dot representing asset diversification -->
+        <path
+            android:fillColor="#FFC837"
+            android:pathData="M65,39 A3,3 0 1,1 64.99,39 Z"/>
+    </group>
+</vector>
